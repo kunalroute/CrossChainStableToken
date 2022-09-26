@@ -1,0 +1,20 @@
+{
+  "137": {
+    "genericHandler": "",
+    "feeToken": "",
+    "collateral": "",
+    "oracle": "",
+    "treasury": "",
+    "stableCoin": "",
+    "plutus": ""
+  },
+  "250": {
+    "genericHandler": "",
+    "feeToken": "",
+    "collateral": "",
+    "oracle": "",
+    "treasury": "",
+    "stableCoin": "",
+    "plutus": ""
+  }
+}

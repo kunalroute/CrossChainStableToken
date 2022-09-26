@@ -1,0 +1,20 @@
+{
+  "137": {
+    "genericHandler": "0x10BA4774cDBF19f3a4ed652005E0078e021bDF3E",
+    "feeToken": "0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270",
+    "collateral": "0x7ceb23fd6bc0add59e62ac25578270cff1b9f619",
+    "oracle": "0xf9680d99d6c9589e2a93a78a04a279e509205945",
+    "treasury": "0x7bAd5B617d9AD6B4aBd1A9E09dB8488F4c9f028f",
+    "stableCoin": "0x2d6E57D31C24699A205E7434872Aa28602f3e872",
+    "plutus": "0x42102a636CDF8d7feF86f4Cc060027f962557d66"
+  },
+  "250": {
+    "genericHandler": "0x6AfC517BcAC2e0e4BF6bB0F41383732E6359D541",
+    "feeToken": "0x21be370d5312f44cb42ce377bc9b8a0cef1a4c83",
+    "collateral": "0x74b23882a30290451a17c44f4f05243b6b58c76d",
+    "oracle": "0x11DdD3d147E5b83D01cee7070027092397d63658",
+    "treasury": "0x31c2153f83a43841e2cF1a45191b479F5a6eb184",
+    "stableCoin": "0x7692d6Cd300428d76716443557a201dfA008012B",
+    "plutus": "0x803A0E48367c408A2B98E85930B1A6e48dE79247"
+  }
+}
