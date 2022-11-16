@@ -100,7 +100,6 @@ contract Plutus is IApplication, ReentrancyGuard, PawnVault, Ownable {
         treasury = _treasury;
         tokenPriceSource = _tokenPriceSource;
         pawnId = createVault();
-        setLink(msg.sender);
         gatewayContract = IGateway(gatewayAddress);
         routerBridgeContract = _routerBridgeContract;
     }
@@ -111,36 +110,17 @@ contract Plutus is IApplication, ReentrancyGuard, PawnVault, Ownable {
         _;
     }
 
+    modifier isSelf() {
+        require(msg.sender == address(this), "only this contract");
+        _;
+    }
+
     /**
         @notice Sets the price source address for the token.
         @param _source the new one price source token
      */
     function setTokenPriceSource(address _source) external onlyOwner {
         tokenPriceSource = _source;
-    }
-
-    /**
-        @notice Sets the fee token address.
-        @param _addr fee token address
-     */
-    function setFeesToken(address _addr) external onlyOwner {
-        setFeeToken(_addr);
-    }
-
-    function _approveFees(address _feeToken, uint256 _value) public onlyOwner {
-        //Calling the approveFees function of the Router CrossTalk contract
-        approveFees(_feeToken, _value);
-    }
-
-    function _approveFeesOnStableCoin(address feeToken, uint256 amount)
-        external
-        onlyOwner
-    {
-        Treasury(treasury).approveFeesOnStableCoin(
-            stableCoin,
-            feeToken,
-            amount
-        );
     }
 
     /**
@@ -464,7 +444,7 @@ contract Plutus is IApplication, ReentrancyGuard, PawnVault, Ownable {
         );*/
 
 
-        bytes memory data = abi.encode(_chainId, _amount, _receiver);
+        bytes memory data = abi.encode(_chainID, _amount, _receiver);
         bytes memory payload = abi.encode(0, data);  // 0 -> xMint(uint256,address)
 
         gatewayContract.requestToRouter(payload, routerBridgeContract);
@@ -560,7 +540,7 @@ contract Plutus is IApplication, ReentrancyGuard, PawnVault, Ownable {
             gasPrice
         );*/
 
-        bytes memory data = abi.encode(_chainId, _amount, _vaultID);
+        bytes memory data = abi.encode(_chainID, _amount, _vaultID);
         bytes memory payload = abi.encode(1, data);  // 1 -> xpayBackToken(uint256,uint256)
 
         gatewayContract.requestToRouter(payload, routerBridgeContract);

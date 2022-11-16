@@ -11,8 +11,18 @@ contract StableCoin is XERC20 {
     constructor(
         string memory _tokenName,
         string memory _symbol,
-        address _owner
-    ) XERC20(_tokenName, _symbol, _owner) {}
+        address _owner,
+        address payable _gatewayContract,
+        string memory _routerBridgeContract
+    )
+        XERC20(
+            _tokenName,
+            _symbol,
+            _owner,
+            _gatewayContract,
+            _routerBridgeContract
+        )
+    {}
 
     function mint(address _account, uint256 _amount) external onlyTreasury {
         _mint(_account, _amount);

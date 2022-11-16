@@ -46,6 +46,7 @@ contract XERC20 is IApplication, Context, IERC20Metadata, IXERC20 {
     string private _name;
     string private _symbol;
     address public _owner;
+    string public routerBridgeContract;
 
     /**
      * @dev Sets the values for {name} and {symbol}.
@@ -60,12 +61,19 @@ contract XERC20 is IApplication, Context, IERC20Metadata, IXERC20 {
         string memory name_,
         string memory symbol_,
         address owner,
-        address payable gatewayAddress
+        address payable gatewayAddress,
+        string memory _routerBridgeContract
     ) {
         _owner = owner;
         _name = name_;
         _symbol = symbol_;
         gatewayContract = IGateway(gatewayAddress);
+        routerBridgeContract = _routerBridgeContract;
+    }
+
+    modifier isSelf() {
+        require(msg.sender == address(this), "only this contract");
+        _;
     }
 
     /**
@@ -436,8 +444,7 @@ contract XERC20 is IApplication, Context, IERC20Metadata, IXERC20 {
     function xTransfer(
         uint8 chainId,
         address to,
-        uint256 amount,
-        string memory routerBridgeContract
+        uint256 amount
     ) external override {
         _xTransfer(to, amount);
         bytes memory data = abi.encode(to, amount);
@@ -472,7 +479,7 @@ contract XERC20 is IApplication, Context, IERC20Metadata, IXERC20 {
         require(msg.sender == address(gatewayContract));
 
         // methodType = method to call, data = method params
-        (uint8 _methodType, bytes memory _data) = abi.decode(payload, (address, uint256));
+        (uint8 _methodType, bytes memory _data) = abi.decode(payload, (uint8, bytes));
 
         // mint
         if (_methodType == 0) {
