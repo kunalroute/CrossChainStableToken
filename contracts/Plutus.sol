@@ -46,6 +46,8 @@ contract Plutus is IApplication, ReentrancyGuard, PawnVault, Ownable {
     uint256 public totalBorrowed;
 
     address public tokenPriceSource;
+    mapping(address => uint256) public unClaimedLiquidation;
+    string public immutable routerBridgeContract;
 
     event CreateVault(uint256 vaultID, address creator);
     event DestroyVault(uint256 vaultID);
@@ -73,7 +75,6 @@ contract Plutus is IApplication, ReentrancyGuard, PawnVault, Ownable {
         uint256 closingFee
     );
 
-    mapping(address => uint256) public unClaimedLiquidation;
 
     constructor(
         uint256 minCollateralPercent,
@@ -84,7 +85,8 @@ contract Plutus is IApplication, ReentrancyGuard, PawnVault, Ownable {
         address _collateral,
         address _treasury,
         address _tokenPriceSource,
-        address payable gatewayAddress)
+        address payable gatewayAddress,
+        string memory _routerBridgeContract
     ) PawnVault(name, symbol, baseURI) {
         assert(minCollateralPercent != 0);
 
@@ -100,6 +102,7 @@ contract Plutus is IApplication, ReentrancyGuard, PawnVault, Ownable {
         pawnId = createVault();
         setLink(msg.sender);
         gatewayContract = IGateway(gatewayAddress);
+        routerBridgeContract = _routerBridgeContract;
     }
 
     modifier onlyVaultOwner(uint256 vaultID) {
@@ -445,8 +448,7 @@ contract Plutus is IApplication, ReentrancyGuard, PawnVault, Ownable {
         uint256 _vaultID,
         address _receiver,
         uint256 gasLimit,
-        uint256 gasPrice,
-        string memory routerBridgeContract
+        uint256 gasPrice    
     ) public nonReentrant onlyVaultOwner(_vaultID) { //returns (bool, bytes32) {
         _borrowToken(_amount, _vaultID);
 
@@ -539,9 +541,8 @@ contract Plutus is IApplication, ReentrancyGuard, PawnVault, Ownable {
         uint256 _vaultID,
         uint256 _amount,
         uint256 gasLimit,
-        uint256 gasPrice,
-        string memory routerBridgeContract
-    ) external nonReentrant } //returns (bool, bytes32) {
+        uint256 gasPrice
+    ) external nonReentrant { //returns (bool, bytes32) {
         require(
             ERC20(stableCoin).balanceOf(msg.sender) >= _amount,
             "Token balance too low"
@@ -568,14 +569,14 @@ contract Plutus is IApplication, ReentrancyGuard, PawnVault, Ownable {
         //return (success, hash);
     }
 
-    // Hash that is returned while calling routerSend function
-    function replayTx(
-        bytes32 hash,
-        uint256 gasLimit,
-        uint256 gasPrice
-    ) external onlyOwner {
-        routerReplay(hash, gasLimit, gasPrice);
-    }
+    // // Hash that is returned while calling routerSend function
+    // function replayTx(
+    //     bytes32 hash,
+    //     uint256 gasLimit,
+    //     uint256 gasPrice
+    // ) external onlyOwner {
+    //     routerReplay(hash, gasLimit, gasPrice);
+    // }
 
     /**
         @notice This function will  mint the stable coins for the to address. 
@@ -624,15 +625,14 @@ contract Plutus is IApplication, ReentrancyGuard, PawnVault, Ownable {
         }
     }*/
 
-
     function handleRequestFromRouter(string memory sender, bytes memory payload) override external returns (bool, bytes memory) {
         // This check is to ensure that the contract is called from the Gateway only.
         require(msg.sender == address(gatewayContract));
 
-        bytes4 _mintInterface = bytes4(keccak256("xMint(uint256,address)"));
-        bytes4 _xpayBackTokenInterface = bytes4(
-            keccak256("xpayBackToken(uint256,uint256)")
-        );
+        // bytes4 _mintInterface = bytes4(keccak256("xMint(uint256,address)"));
+        // bytes4 _xpayBackTokenInterface = bytes4(
+        //     keccak256("xpayBackToken(uint256,uint256)")
+        // );
 
         // methodType = method to call, data = method params
         (uint8 _methodType, bytes memory _data) = abi.decode(payload, (uint8, bytes));
@@ -641,16 +641,19 @@ contract Plutus is IApplication, ReentrancyGuard, PawnVault, Ownable {
         if (_methodType == 0) {
             (uint256 _amount, address _to) = abi.decode(_data, (uint256, address));
 
-            (bool success, bytes memory returnData) = address(this).call(abi.encodeWithSelector(_mintInterface, _amount, _to));
+            (bool success, bytes memory returnData) = this.xMint(_amount, _to);
+            // (bool success, bytes memory returnData) = address(this).call(abi.encodeWithSelector(_mintInterface, _amount, _to));
 
             return (success, returnData);
         } else if (_methodType == 1) {
             (uint256 _amount, uint256 _vaultId) = abi.decode(_data, (uint256, uint256));
             
-            (bool success, bytes memory returnData) = address(this).call(abi.encodeWithSelector(_xpayBackTokenInterface, _vaultId, _amount));
+            (bool success, bytes memory returnData) = this.xpayBackToken(_vaultId, _amount);
+            // (bool success, bytes memory returnData) = address(this).call(abi.encodeWithSelector(_xpayBackTokenInterface, _vaultId, _amount));
 
             return (success, returnData);
         }
+        else return (false, "");
 
         //require(keccak256(abi.encodePacked(sampleStr)) != keccak256(abi.encodePacked("")));
         //greeting = sampleStr;
