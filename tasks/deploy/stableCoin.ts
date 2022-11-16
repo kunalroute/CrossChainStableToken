@@ -5,20 +5,24 @@ task("deploy:StableCoin", "Deploys the stable coin").setAction(async function (
   taskArguments: TaskArguments,
   hre
 ) {
-  //@ts-ignore
   const deployment = require("../../deployments/deployments.json");
   const network = await hre.ethers.provider.getNetwork();
   const chainId = network.chainId;
   const treasury = deployment[chainId].treasury;
+  const gatewayContract = deployment[chainId].gatewayContract;
+  const routerBridgeContract = deployment[chainId].routerBridge;
+
   console.log("StableCoin Deployment Started:");
+
   const StableContract = await hre.ethers.getContractFactory("StableCoin");
   const StableCoin = await StableContract.deploy(
     "USDP",
     "USDP",
-    deployment[chainId].genericHandler,
-    deployment[chainId].feeToken,
-    treasury
+    treasury,
+    gatewayContract,
+    routerBridgeContract
   );
+
   await StableCoin.deployed();
 
   await hre.run("STORE_DEPLOYMENTS", {
@@ -27,5 +31,6 @@ task("deploy:StableCoin", "Deploys the stable coin").setAction(async function (
   });
 
   console.log("Deployed StableCoin At:", StableCoin.address);
+
   return null;
 });

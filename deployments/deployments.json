@@ -1,20 +1,20 @@
 {
-  "137": {
-    "genericHandler": "0x10BA4774cDBF19f3a4ed652005E0078e021bDF3E",
-    "feeToken": "0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270",
-    "collateral": "0x7ceb23fd6bc0add59e62ac25578270cff1b9f619",
-    "oracle": "0xf9680d99d6c9589e2a93a78a04a279e509205945",
-    "treasury": "0x7bAd5B617d9AD6B4aBd1A9E09dB8488F4c9f028f",
-    "stableCoin": "0x2d6E57D31C24699A205E7434872Aa28602f3e872",
-    "plutus": "0x42102a636CDF8d7feF86f4Cc060027f962557d66"
+  "7545": {
+    "gatewayContract": "0xF744a7483cc04F2a224126ebCCf0c87214bD66D2",
+    "routerBridge": "router1nl237syqtwr37nh3gf207fn3t8a5gfy4cp0puvt0s9fk4sm0qmzsr50hf7",
+    "oracle": "0x6F16BE594E6e347406f4D6E0A8bbFBb4CC1B93d3",
+    "collateral": "0x2e5adC040b86C3453b93641546D42C91A9Fb5899",
+    "treasury": "0x0b7201C83154e9959443323054DD59D5416cA41A",
+    "stableCoin": "0x52FbD9B60DE6a2188073FBf43a5A20d4C2cabFc8",
+    "plutus": "0x1539Ff4D5bfDaB91B26373c30dd02949B5747CDD"
   },
-  "250": {
-    "genericHandler": "0x6AfC517BcAC2e0e4BF6bB0F41383732E6359D541",
-    "feeToken": "0x21be370d5312f44cb42ce377bc9b8a0cef1a4c83",
-    "collateral": "0x74b23882a30290451a17c44f4f05243b6b58c76d",
-    "oracle": "0x11DdD3d147E5b83D01cee7070027092397d63658",
-    "treasury": "0x31c2153f83a43841e2cF1a45191b479F5a6eb184",
-    "stableCoin": "0x7692d6Cd300428d76716443557a201dfA008012B",
-    "plutus": "0x803A0E48367c408A2B98E85930B1A6e48dE79247"
+  "8545": {
+    "gatewayContract": "0xF744a7483cc04F2a224126ebCCf0c87214bD66D2",
+    "routerBridge": "router1nl237syqtwr37nh3gf207fn3t8a5gfy4cp0puvt0s9fk4sm0qmzsr50hf7",
+    "oracle": "0x661Fc9D24353eC3480F028a296783f591E3954F8",
+    "collateral": "0x58cb5fdef66576328812247422B766d12DD6DB4E",
+    "treasury": "0x968451F8Cc3685FEaa79235fcE56424e4a332878",
+    "stableCoin": "0x3d16ce89e9dd531646BAaEfC70Be9388de76DcE9",
+    "plutus": "0x34Eb5D520F9994Ec63d16118Bf6E82421854e5fd"
   }
 }

@@ -2,7 +2,6 @@
 pragma solidity ^0.8.13;
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "./library/CrosschainERC20.sol";
@@ -11,14 +10,14 @@ contract StableCoin is XERC20 {
     constructor(
         string memory _tokenName,
         string memory _symbol,
-        address _owner,
+        address __owner,
         address payable _gatewayContract,
         string memory _routerBridgeContract
     )
         XERC20(
             _tokenName,
             _symbol,
-            _owner,
+            __owner,
             _gatewayContract,
             _routerBridgeContract
         )

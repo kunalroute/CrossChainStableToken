@@ -75,19 +75,18 @@ contract Plutus is IApplication, ReentrancyGuard, PawnVault, Ownable {
         uint256 closingFee
     );
 
-
     constructor(
         uint256 minCollateralPercent,
-        string memory name,
-        string memory symbol,
-        string memory baseURI,
+        string memory _name,
+        string memory _symbol,
+        string memory __baseURI,
         address _stableCoin,
         address _collateral,
         address _treasury,
         address _tokenPriceSource,
         address payable gatewayAddress,
         string memory _routerBridgeContract
-    ) PawnVault(name, symbol, baseURI) {
+    ) PawnVault(_name, _symbol, __baseURI) {
         assert(minCollateralPercent != 0);
 
         closingFee = 50; // 0.5% * 1000
@@ -110,10 +109,6 @@ contract Plutus is IApplication, ReentrancyGuard, PawnVault, Ownable {
         _;
     }
 
-    modifier isSelf() {
-        require(msg.sender == address(this), "only this contract");
-        _;
-    }
 
     /**
         @notice Sets the price source address for the token.
@@ -427,7 +422,6 @@ contract Plutus is IApplication, ReentrancyGuard, PawnVault, Ownable {
 
         gatewayContract.requestToRouter(payload, routerBridgeContract);
 
-
         emit XBorrowToken(_vaultID, _amount);
         //return (success, hash);
     }
@@ -460,7 +454,7 @@ contract Plutus is IApplication, ReentrancyGuard, PawnVault, Ownable {
 
         require(
             vaultDebt[vaultID] >= amount,
-            "Vault debt less than amount to pay back"
+            "Vault debt < amount to pay back"
         );
         _updatePayBackToken(vaultID, amount);
         Treasury(treasury).burnStableCoin(amount, msg.sender, stableCoin);
@@ -472,7 +466,7 @@ contract Plutus is IApplication, ReentrancyGuard, PawnVault, Ownable {
         @param vaultID the vault ID.
         @param amount the amount
      */
-    function xpayBackToken(uint256 vaultID, uint256 amount) external isSelf {
+    function xpayBackToken(uint256 vaultID, uint256 amount) internal {
         //Check if amount value is equal or greater than collateral value based of this mint or payback
         if (amount > vaultDebt[vaultID]) {
             uint256 delta = amount - vaultDebt[vaultID];
@@ -519,51 +513,17 @@ contract Plutus is IApplication, ReentrancyGuard, PawnVault, Ownable {
         @param _to the receiver address
         @param _amount the amount
      */
-    function xMint(uint256 _amount, address _to) external isSelf {
+    function xMint(uint256 _amount, address _to) internal {
         Treasury(treasury).mintStableCoin(_amount, _to, stableCoin);
     }
 
-    // function xBurn(uint256 _amount, address _to) external isSelf {
-    //     Treasury(treasury).burnStableCoin(_amount, _to, stableCoin);
-    // }
-
-    //incoming function
-    /*function _routerSyncHandler(bytes4 _interface, bytes memory _data)
-        internal
-        virtual
-        override
-        returns (bool, bytes memory)
-    {
-        bytes4 _mintInterface = bytes4(keccak256("xMint(uint256,address)"));
-        bytes4 _xpayBackTokenInterface = bytes4(
-            keccak256("xpayBackToken(uint256,uint256)")
-        );
-
-        if (_interface == _mintInterface) {
-            (uint256 _amount, address _to) = abi.decode(
-                _data,
-                (uint256, address)
-            );
-            (bool success, bytes memory returnData) = address(this).call(
-                abi.encodeWithSelector(_interface, _amount, _to)
-            );
-            return (success, returnData);
-        }
-        if (_interface == _xpayBackTokenInterface) {
-            (uint256 _amount, uint256 _vaultId) = abi.decode(
-                _data,
-                (uint256, uint256)
-            );
-            (bool success, bytes memory returnData) = address(this).call(
-                abi.encodeWithSelector(_interface, _vaultId, _amount)
-            );
-            return (success, returnData);
-        }
-    }*/
-
     function handleRequestFromRouter(string memory sender, bytes memory payload) override external {
         // This check is to ensure that the contract is called from the Gateway only.
-        require(msg.sender == address(gatewayContract));
+        require(msg.sender == address(gatewayContract), "only gateway contract");
+        require(
+            keccak256(abi.encodePacked(sender)) == keccak256(abi.encodePacked(routerBridgeContract)), 
+            "router bridge != sender"
+        );
 
         // methodType = method to call, data = method params
         (uint8 _methodType, bytes memory _data) = abi.decode(payload, (uint8, bytes));
@@ -571,13 +531,11 @@ contract Plutus is IApplication, ReentrancyGuard, PawnVault, Ownable {
         // mint
         if (_methodType == 0) {
             (uint256 _amount, address _to) = abi.decode(_data, (uint256, address));
-
-            this.xMint(_amount, _to);
+            xMint(_amount, _to);
             // (bool success, bytes memory returnData) = address(this).call(abi.encodeWithSelector(_mintInterface, _amount, _to));
         } else if (_methodType == 1) {
             (uint256 _amount, uint256 _vaultId) = abi.decode(_data, (uint256, uint256));
-            
-            this.xpayBackToken(_vaultId, _amount);
+            xpayBackToken(_vaultId, _amount);
             // (bool success, bytes memory returnData) = address(this).call(abi.encodeWithSelector(_xpayBackTokenInterface, _vaultId, _amount));
         }
         //require(keccak256(abi.encodePacked(sampleStr)) != keccak256(abi.encodePacked("")));

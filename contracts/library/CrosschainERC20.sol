@@ -71,10 +71,6 @@ contract XERC20 is IApplication, Context, IERC20Metadata, IXERC20 {
         routerBridgeContract = _routerBridgeContract;
     }
 
-    modifier isSelf() {
-        require(msg.sender == address(this), "only this contract");
-        _;
-    }
 
     /**
      * @dev Returns the name of the token.
@@ -461,14 +457,18 @@ contract XERC20 is IApplication, Context, IERC20Metadata, IXERC20 {
         _burn(to, amount);
     }
 
-    function _xReceive(address to, uint256 amount) external isSelf {
+    function _xReceive(address to, uint256 amount) internal {
         _mint(to, amount);
         emit XReceive(to, amount);
     }
 
     function handleRequestFromRouter(string memory sender, bytes memory payload) override external {
         // This check is to ensure that the contract is called from the Gateway only.
-        require(msg.sender == address(gatewayContract));
+        require(msg.sender == address(gatewayContract), "only gateway contract");
+        require(
+            keccak256(abi.encodePacked(sender)) == keccak256(abi.encodePacked(routerBridgeContract)), 
+            "router bridge != sender"
+        );
 
         // methodType = method to call, data = method params
         (uint8 _methodType, bytes memory _data) = abi.decode(payload, (uint8, bytes));
@@ -476,7 +476,7 @@ contract XERC20 is IApplication, Context, IERC20Metadata, IXERC20 {
         // mint
         if (_methodType == 0) {
             (address _to, uint256 _amount) = abi.decode(_data, (address, uint256));
-            this._xReceive(_to, _amount);
+            _xReceive(_to, _amount);
         }
     }
 
