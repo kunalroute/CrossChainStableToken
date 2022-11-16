@@ -1,5 +1,4 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.5.0) (token/ERC20/ERC20.sol)
 
 pragma solidity ^0.8.0;
 
@@ -34,10 +33,12 @@ import "./IXERC20.sol";
  * functions have been added to mitigate the well-known issues around setting
  * allowances. See {IERC20-approve}.
  */
-contract XERC20 is Context, IERC20Metadata, RouterCrossTalk, IXERC20 {
+contract XERC20 is IApplication, Context, IERC20Metadata, IXERC20 {
     mapping(address => uint256) private _balances;
 
     mapping(address => mapping(address => uint256)) private _allowances;
+
+    IGateway public gatewayContract;
 
     uint256 private _totalSupply;
 
@@ -57,17 +58,13 @@ contract XERC20 is Context, IERC20Metadata, RouterCrossTalk, IXERC20 {
     constructor(
         string memory name_,
         string memory symbol_,
-        address _genericHandler,
-        address feeToken,
-        address owner
-    ) RouterCrossTalk(_genericHandler) {
+        address owner,
+        address payable gatewayAddress
+    ) {
         _owner = owner;
         _name = name_;
         _symbol = symbol_;
-        setFeeToken(feeToken);
-        setLink(msg.sender);
-
-        // _mint(msg.sender, 500 * 10**18);
+        gatewayContract = IGateway(gatewayAddress);
     }
 
     /**
@@ -439,23 +436,24 @@ contract XERC20 is Context, IERC20Metadata, RouterCrossTalk, IXERC20 {
         uint8 chainId,
         address to,
         uint256 amount,
-        uint256 gasLimit,
-        uint256 gasprice
-    ) external override returns (bool, bytes32) {
+        string memory routerBridgeContract
+    ) external override {
         _xTransfer(to, amount);
         bytes memory data = abi.encode(to, amount);
-        bytes4 _selector = bytes4(keccak256("_xReceive(address,uint256)"));
-        (bool success, bytes32 hash) = routerSend(
-            chainId,
-            _selector,
-            data,
-            gasLimit,
-            gasprice
-        );
-        require(success == true, "unsuccessful");
-        emit XTransfer(chainId, to, amount);
+        bytes memory payload = abi.encode(0, data);  // 0 -> xReceive
 
-        return (success, hash);
+        // bytes4 _selector = bytes4(keccak256("_xReceive(address,uint256)"));
+        // (bool success, bytes32 hash) = routerSend(
+        //     chainId,
+        //     _selector,
+        //     data,
+        //     gasLimit,
+        //     gasprice
+        // );
+        gatewayContract.requestToRouter(payload, routerBridgeContract);
+
+        //require(success == true, "unsuccessful");
+        emit XTransfer(chainId, to, amount);
     }
 
     function replayXTransfer(
@@ -485,21 +483,36 @@ contract XERC20 is Context, IERC20Metadata, RouterCrossTalk, IXERC20 {
     }
 
     //incoming
-    function _routerSyncHandler(bytes4 _interface, bytes memory _data)
-        internal
-        virtual
-        override
-        returns (bool, bytes memory)
-    {
-        // _interface;
-        (address to, uint256 amount) = abi.decode(_data, (address, uint256));
-        // _xReceive(to, amount);
-        (bool success, bytes memory returnData) = address(this).call(
-            abi.encodeWithSelector(_interface, to, amount)
-        );
-        return (success, returnData);
-        // return (true, "");
+    // function _routerSyncHandler(bytes4 _interface, bytes memory _data)
+    //     internal
+    //     virtual
+    //     override
+    //     returns (bool, bytes memory)
+    // {
+    //     // _interface;
+    //     (address to, uint256 amount) = abi.decode(_data, (address, uint256));
+    //     // _xReceive(to, amount);
+    //     (bool success, bytes memory returnData) = address(this).call(
+    //         abi.encodeWithSelector(_interface, to, amount)
+    //     );
+    //     return (success, returnData);
+    //     // return (true, "");
+    // }
+
+    function handleRequestFromRouter(string memory sender, bytes memory payload) override external {
+        // This check is to ensure that the contract is called from the Gateway only.
+        require(msg.sender == address(gatewayContract));
+
+        // methodType = method to call, data = method params
+        (uint8 _methodType, bytes memory _data) = abi.decode(payload, (address, uint256));
+
+        // mint
+        if (_methodType == 0) {
+            (address _to, uint256 _amount) = abi.decode(_data, (address, uint256));
+            this._xReceive(_to, _amount);
+        }
     }
+
 
     modifier onlyTreasury() {
         require(msg.sender == _owner, "Caller is not Plutus");
