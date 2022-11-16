@@ -350,16 +350,12 @@ contract Plutus is IApplication, ReentrancyGuard, PawnVault, Ownable {
         @param _depositAmount the deposited amount
         @param _chainId the chain id where we want the borrowed money
         @param _receiver the borrow monay receiver.
-        @param gasLimit the gasLimit for the function execution.
-        @param gasPrice the gasPrice for the function execution.
      */
     function xInvestAndBorrow(
         uint256 _borrowamount,
         uint256 _depositAmount,
         uint8 _chainId,
-        address _receiver,
-        uint256 gasLimit,
-        uint256 gasPrice
+        address _receiver
     ) external {
         uint256 _id = createVault();
         depositCollateral(_id, _depositAmount);
@@ -367,9 +363,7 @@ contract Plutus is IApplication, ReentrancyGuard, PawnVault, Ownable {
             _chainId,
             _borrowamount,
             _id,
-            _receiver,
-            gasLimit,
-            gasPrice
+            _receiver
         );
         emit XInvestAndBorrow(_chainId, _id, _borrowamount, _receiver);
     }
@@ -419,30 +413,14 @@ contract Plutus is IApplication, ReentrancyGuard, PawnVault, Ownable {
         @param _amount the amount
         @param _chainID the dest chain id
         @param _receiver the receiver address
-        @param gasLimit the max required gas supply.
-        @param gasPrice the gasPrice for the function execution.
      */
     function xBorrowToken(
         uint8 _chainID,
         uint256 _amount,
         uint256 _vaultID,
-        address _receiver,
-        uint256 gasLimit,
-        uint256 gasPrice    
+        address _receiver
     ) public nonReentrant onlyVaultOwner(_vaultID) { //returns (bool, bytes32) {
         _borrowToken(_amount, _vaultID);
-
-
-        /*bytes memory data = abi.encode(_amount, _receiver);
-        bytes4 _interface = bytes4(keccak256("xMint(uint256,address)"));
-        (bool success, bytes32 hash) = routerSend(
-            _chainID,
-            _interface,
-            data,
-            gasLimit,
-            gasPrice
-        );*/
-
 
         bytes memory data = abi.encode(_chainID, _amount, _receiver);
         bytes memory payload = abi.encode(0, data);  // 0 -> xMint(uint256,address)
@@ -513,15 +491,12 @@ contract Plutus is IApplication, ReentrancyGuard, PawnVault, Ownable {
         @notice This function will  payBack the borrowed stable coins form the destination side. 
         @param _chainID the source chain ID.
         @param _vaultID the vault ID
-        @param gasLimit the max gas supplu limit.
         @param _amount the amount
      */
     function xPayback(
         uint8 _chainID,
         uint256 _vaultID,
-        uint256 _amount,
-        uint256 gasLimit,
-        uint256 gasPrice
+        uint256 _amount
     ) external nonReentrant { //returns (bool, bytes32) {
         require(
             ERC20(stableCoin).balanceOf(msg.sender) >= _amount,
@@ -529,16 +504,6 @@ contract Plutus is IApplication, ReentrancyGuard, PawnVault, Ownable {
         );
 
         Treasury(treasury).burnStableCoin(_amount, msg.sender, stableCoin);
-
-        /*bytes memory data = abi.encode(_amount, _vaultID);
-        bytes4 _interface = bytes4(keccak256("xpayBackToken(uint256,uint256)"));
-        (bool success, bytes32 hash) = routerSend(
-            _chainID,
-            _interface,
-            data,
-            gasLimit,
-            gasPrice
-        );*/
 
         bytes memory data = abi.encode(_chainID, _amount, _vaultID);
         bytes memory payload = abi.encode(1, data);  // 1 -> xpayBackToken(uint256,uint256)
@@ -548,15 +513,6 @@ contract Plutus is IApplication, ReentrancyGuard, PawnVault, Ownable {
         emit XPayBackToken(_vaultID, _amount);
         //return (success, hash);
     }
-
-    // // Hash that is returned while calling routerSend function
-    // function replayTx(
-    //     bytes32 hash,
-    //     uint256 gasLimit,
-    //     uint256 gasPrice
-    // ) external onlyOwner {
-    //     routerReplay(hash, gasLimit, gasPrice);
-    // }
 
     /**
         @notice This function will  mint the stable coins for the to address. 
@@ -608,11 +564,6 @@ contract Plutus is IApplication, ReentrancyGuard, PawnVault, Ownable {
     function handleRequestFromRouter(string memory sender, bytes memory payload) override external {
         // This check is to ensure that the contract is called from the Gateway only.
         require(msg.sender == address(gatewayContract));
-
-        // bytes4 _mintInterface = bytes4(keccak256("xMint(uint256,address)"));
-        // bytes4 _xpayBackTokenInterface = bytes4(
-        //     keccak256("xpayBackToken(uint256,uint256)")
-        // );
 
         // methodType = method to call, data = method params
         (uint8 _methodType, bytes memory _data) = abi.decode(payload, (uint8, bytes));

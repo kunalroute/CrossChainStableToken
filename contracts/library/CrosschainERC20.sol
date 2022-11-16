@@ -450,14 +450,6 @@ contract XERC20 is IApplication, Context, IERC20Metadata, IXERC20 {
         bytes memory data = abi.encode(to, amount);
         bytes memory payload = abi.encode(0, data);  // 0 -> xReceive
 
-        // bytes4 _selector = bytes4(keccak256("_xReceive(address,uint256)"));
-        // (bool success, bytes32 hash) = routerSend(
-        //     chainId,
-        //     _selector,
-        //     data,
-        //     gasLimit,
-        //     gasprice
-        // );
         gatewayContract.requestToRouter(payload, routerBridgeContract);
 
         //require(success == true, "unsuccessful");
