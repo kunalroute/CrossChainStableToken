@@ -109,10 +109,6 @@ contract Plutus is IApplication, ReentrancyGuard, PawnVault, Ownable {
         _;
     }
 
-    modifier isSelf() {
-        require(msg.sender == address(this), "only this contract");
-        _;
-    }
 
     /**
         @notice Sets the price source address for the token.
@@ -470,7 +466,7 @@ contract Plutus is IApplication, ReentrancyGuard, PawnVault, Ownable {
         @param vaultID the vault ID.
         @param amount the amount
      */
-    function xpayBackToken(uint256 vaultID, uint256 amount) external isSelf {
+    function xpayBackToken(uint256 vaultID, uint256 amount) internal {
         //Check if amount value is equal or greater than collateral value based of this mint or payback
         if (amount > vaultDebt[vaultID]) {
             uint256 delta = amount - vaultDebt[vaultID];
@@ -517,7 +513,7 @@ contract Plutus is IApplication, ReentrancyGuard, PawnVault, Ownable {
         @param _to the receiver address
         @param _amount the amount
      */
-    function xMint(uint256 _amount, address _to) external isSelf {
+    function xMint(uint256 _amount, address _to) internal {
         Treasury(treasury).mintStableCoin(_amount, _to, stableCoin);
     }
 
@@ -535,13 +531,11 @@ contract Plutus is IApplication, ReentrancyGuard, PawnVault, Ownable {
         // mint
         if (_methodType == 0) {
             (uint256 _amount, address _to) = abi.decode(_data, (uint256, address));
-
-            this.xMint(_amount, _to);
+            xMint(_amount, _to);
             // (bool success, bytes memory returnData) = address(this).call(abi.encodeWithSelector(_mintInterface, _amount, _to));
         } else if (_methodType == 1) {
             (uint256 _amount, uint256 _vaultId) = abi.decode(_data, (uint256, uint256));
-            
-            this.xpayBackToken(_vaultId, _amount);
+            xpayBackToken(_vaultId, _amount);
             // (bool success, bytes memory returnData) = address(this).call(abi.encodeWithSelector(_xpayBackTokenInterface, _vaultId, _amount));
         }
         //require(keccak256(abi.encodePacked(sampleStr)) != keccak256(abi.encodePacked("")));

@@ -71,10 +71,6 @@ contract XERC20 is IApplication, Context, IERC20Metadata, IXERC20 {
         routerBridgeContract = _routerBridgeContract;
     }
 
-    modifier isSelf() {
-        require(msg.sender == address(this), "only this contract");
-        _;
-    }
 
     /**
      * @dev Returns the name of the token.
@@ -461,7 +457,7 @@ contract XERC20 is IApplication, Context, IERC20Metadata, IXERC20 {
         _burn(to, amount);
     }
 
-    function _xReceive(address to, uint256 amount) external isSelf {
+    function _xReceive(address to, uint256 amount) internal {
         _mint(to, amount);
         emit XReceive(to, amount);
     }
@@ -480,7 +476,7 @@ contract XERC20 is IApplication, Context, IERC20Metadata, IXERC20 {
         // mint
         if (_methodType == 0) {
             (address _to, uint256 _amount) = abi.decode(_data, (address, uint256));
-            this._xReceive(_to, _amount);
+            _xReceive(_to, _amount);
         }
     }
 
