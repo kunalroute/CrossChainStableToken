@@ -87,14 +87,20 @@ const config: HardhatUserConfig = {
       // See https://github.com/sc-forks/solidity-coverage/issues/652
       hardfork: process.env.CODE_COVERAGE ? "berlin" : "london",
     },
+    ganache1: {
+      chainId: 7545,
+      url: "https://rc-testnet1.routerprotocol.com/",
+      accounts: [mnemonic],
+    },
+    ganache2: {
+      chainId: 8545,
+      url: "https://rc-testnet2.routerprotocol.com/",
+      accounts: [mnemonic],
+    },
     goerli: getChainConfig("goerli"),
     kovan: getChainConfig("kovan"),
     rinkeby: getChainConfig("rinkeby"),
     ropsten: getChainConfig("ropsten"),
-    ganache: {
-      url: "http://127.0.0.1:7545",
-      // accounts: [privateKey1, privateKey2, ...]
-    },
     polygon: getChainConfig("polygon"),
     mumbai: getChainConfig("mumbai"),
     bnb: getChainConfig("bnb"),

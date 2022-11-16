@@ -1,7 +1,5 @@
-import { deployments } from "hardhat";
-import { task, types } from "hardhat/config";
+import { task } from "hardhat/config";
 import { TaskArguments } from "hardhat/types";
-import { FEE_TOKEN, GENERIC_HANDLER } from "../constants";
 
 task("deploy:Plutus", "Deploys the plutus").setAction(async function (
   taskArguments: TaskArguments,
@@ -22,7 +20,8 @@ task("deploy:Plutus", "Deploys the plutus").setAction(async function (
   const _collateral = deployment[chainId].collateral;
   const _treasury = deployment[chainId].treasury;
   const OraclepriceSource = deployment[chainId].oracle;
-  const genericHandlerAddress = deployment[chainId].genericHandler;
+  const gatewayContract = deployment[chainId].gatewayContract;
+  const routerBridgeContract = deployment[chainId].routerBridge;
 
   const plutus = await plutusContract.deploy(
     minimumCollateralPercentage,
@@ -33,8 +32,10 @@ task("deploy:Plutus", "Deploys the plutus").setAction(async function (
     _collateral,
     _treasury,
     OraclepriceSource,
-    genericHandlerAddress
+    gatewayContract,
+    routerBridgeContract
   );
+
   await plutus.deployed();
 
   await hre.run("STORE_DEPLOYMENTS", {

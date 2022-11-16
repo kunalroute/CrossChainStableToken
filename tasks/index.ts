@@ -7,3 +7,4 @@ import "./deployAll";
 import "./storeDeployments";
 import "./constants";
 import "./mapAll";
+import "./verifyAll";

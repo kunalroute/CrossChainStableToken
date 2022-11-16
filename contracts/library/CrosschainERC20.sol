@@ -468,7 +468,11 @@ contract XERC20 is IApplication, Context, IERC20Metadata, IXERC20 {
 
     function handleRequestFromRouter(string memory sender, bytes memory payload) override external {
         // This check is to ensure that the contract is called from the Gateway only.
-        require(msg.sender == address(gatewayContract));
+        require(msg.sender == address(gatewayContract), "only gateway contract");
+        require(
+            keccak256(abi.encodePacked(sender)) == keccak256(abi.encodePacked(routerBridgeContract)), 
+            "router bridge != sender"
+        );
 
         // methodType = method to call, data = method params
         (uint8 _methodType, bytes memory _data) = abi.decode(payload, (uint8, bytes));
