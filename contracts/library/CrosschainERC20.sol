@@ -457,14 +457,6 @@ contract XERC20 is IApplication, Context, IERC20Metadata, IXERC20 {
         emit XTransfer(chainId, to, amount);
     }
 
-    function replayXTransfer(
-        bytes32 _hash,
-        uint256 _gasLimit,
-        uint256 _gasPrice
-    ) public onlyTreasury {
-        routerReplay(_hash, _gasLimit, _gasPrice);
-    }
-
     function _xTransfer(address to, uint256 amount) internal {
         require(amount > 0, "Cannot transfer zero");
         _burn(to, amount);
