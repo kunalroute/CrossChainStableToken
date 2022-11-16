@@ -5,7 +5,8 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 import "@openzeppelin/contracts/utils/Context.sol";
 import "@routerprotocol/router-crosstalk/contracts/RouterCrossTalk.sol";
-
+import "evm-gateway-contract/contracts/IGateway.sol";
+import "evm-gateway-contract/contracts/IApplication.sol";
 import "./IXERC20.sol";
 
 /**
@@ -474,31 +475,6 @@ contract XERC20 is IApplication, Context, IERC20Metadata, IXERC20 {
         emit XReceive(to, amount);
     }
 
-    function _approveFees(address _feeToken, uint256 _value)
-        public
-        onlyTreasury
-    {
-        //Calling the approveFees function of the Router CrossTalk contract
-        approveFees(_feeToken, _value);
-    }
-
-    //incoming
-    // function _routerSyncHandler(bytes4 _interface, bytes memory _data)
-    //     internal
-    //     virtual
-    //     override
-    //     returns (bool, bytes memory)
-    // {
-    //     // _interface;
-    //     (address to, uint256 amount) = abi.decode(_data, (address, uint256));
-    //     // _xReceive(to, amount);
-    //     (bool success, bytes memory returnData) = address(this).call(
-    //         abi.encodeWithSelector(_interface, to, amount)
-    //     );
-    //     return (success, returnData);
-    //     // return (true, "");
-    // }
-
     function handleRequestFromRouter(string memory sender, bytes memory payload) override external {
         // This check is to ensure that the contract is called from the Gateway only.
         require(msg.sender == address(gatewayContract));
@@ -512,7 +488,6 @@ contract XERC20 is IApplication, Context, IERC20Metadata, IXERC20 {
             this._xReceive(_to, _amount);
         }
     }
-
 
     modifier onlyTreasury() {
         require(msg.sender == _owner, "Caller is not Plutus");
