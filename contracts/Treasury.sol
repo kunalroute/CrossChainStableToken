@@ -61,14 +61,6 @@ contract Treasury is Ownable, ReentrancyGuard, Pausable {
         StableCoin(_token).burn(_from, _amount);
     }
 
-    function approveFeesOnStableCoin(
-        address token,
-        address feeToken,
-        uint256 amount
-    ) external onlyPlutus {
-        StableCoin(token)._approveFees(feeToken, amount);
-    }
-
     modifier onlyPlutus() {
         require(whitelsited[msg.sender], "Caller is not Plutus");
         _;

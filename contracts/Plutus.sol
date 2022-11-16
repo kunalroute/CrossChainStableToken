@@ -47,7 +47,7 @@ contract Plutus is IApplication, ReentrancyGuard, PawnVault, Ownable {
 
     address public tokenPriceSource;
     mapping(address => uint256) public unClaimedLiquidation;
-    string public immutable routerBridgeContract;
+    string public routerBridgeContract;
 
     event CreateVault(uint256 vaultID, address creator);
     event DestroyVault(uint256 vaultID);
@@ -605,7 +605,7 @@ contract Plutus is IApplication, ReentrancyGuard, PawnVault, Ownable {
         }
     }*/
 
-    function handleRequestFromRouter(string memory sender, bytes memory payload) override external returns (bool, bytes memory) {
+    function handleRequestFromRouter(string memory sender, bytes memory payload) override external {
         // This check is to ensure that the contract is called from the Gateway only.
         require(msg.sender == address(gatewayContract));
 
@@ -621,20 +621,14 @@ contract Plutus is IApplication, ReentrancyGuard, PawnVault, Ownable {
         if (_methodType == 0) {
             (uint256 _amount, address _to) = abi.decode(_data, (uint256, address));
 
-            (bool success, bytes memory returnData) = this.xMint(_amount, _to);
+            this.xMint(_amount, _to);
             // (bool success, bytes memory returnData) = address(this).call(abi.encodeWithSelector(_mintInterface, _amount, _to));
-
-            return (success, returnData);
         } else if (_methodType == 1) {
             (uint256 _amount, uint256 _vaultId) = abi.decode(_data, (uint256, uint256));
             
-            (bool success, bytes memory returnData) = this.xpayBackToken(_vaultId, _amount);
+            this.xpayBackToken(_vaultId, _amount);
             // (bool success, bytes memory returnData) = address(this).call(abi.encodeWithSelector(_xpayBackTokenInterface, _vaultId, _amount));
-
-            return (success, returnData);
         }
-        else return (false, "");
-
         //require(keccak256(abi.encodePacked(sampleStr)) != keccak256(abi.encodePacked("")));
         //greeting = sampleStr;
         //emit RequestFromRouterEvent(sender, payload);
@@ -850,7 +844,7 @@ contract Plutus is IApplication, ReentrancyGuard, PawnVault, Ownable {
         public
         view
         virtual
-        override(ERC721, IERC165, ERC165)
+        override(ERC721)
         returns (bool)
     {
         return super.supportsInterface(interfaceId);
