@@ -6,21 +6,25 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
-import "@routerprotocol/router-crosstalk/contracts/RouterCrossTalk.sol";
 import "./PriceSource.sol";
 
 import "./PawnVault.sol";
 import "./Treasury.sol";
+
+import "evm-gateway-contract/contracts/IGateway.sol";
+import "evm-gateway-contract/contracts/IApplication.sol";
 
 /**
     @title Cross-chain Collateral provider
     @author Router Protocol
     @notice This contract will handle Cross-chain Collateral
 */
-contract Plutus is RouterCrossTalk, ReentrancyGuard, PawnVault, Ownable {
+contract Plutus is IApplication, ReentrancyGuard, PawnVault, Ownable {
     using Counters for Counters.Counter;
     using SafeMath for uint256;
     using SafeERC20 for ERC20;
+
+    IGateway public gatewayContract;
 
     Counters.Counter private _tokenIdCounter;
 
@@ -42,6 +46,8 @@ contract Plutus is RouterCrossTalk, ReentrancyGuard, PawnVault, Ownable {
     uint256 public totalBorrowed;
 
     address public tokenPriceSource;
+    mapping(address => uint256) public unClaimedLiquidation;
+    string public routerBridgeContract;
 
     event CreateVault(uint256 vaultID, address creator);
     event DestroyVault(uint256 vaultID);
@@ -69,7 +75,6 @@ contract Plutus is RouterCrossTalk, ReentrancyGuard, PawnVault, Ownable {
         uint256 closingFee
     );
 
-    mapping(address => uint256) public unClaimedLiquidation;
 
     constructor(
         uint256 minCollateralPercent,
@@ -80,8 +85,9 @@ contract Plutus is RouterCrossTalk, ReentrancyGuard, PawnVault, Ownable {
         address _collateral,
         address _treasury,
         address _tokenPriceSource,
-        address _genericHandler
-    ) PawnVault(name, symbol, baseURI) RouterCrossTalk(_genericHandler) {
+        address payable gatewayAddress,
+        string memory _routerBridgeContract
+    ) PawnVault(name, symbol, baseURI) {
         assert(minCollateralPercent != 0);
 
         closingFee = 50; // 0.5% * 1000
@@ -94,12 +100,18 @@ contract Plutus is RouterCrossTalk, ReentrancyGuard, PawnVault, Ownable {
         treasury = _treasury;
         tokenPriceSource = _tokenPriceSource;
         pawnId = createVault();
-        setLink(msg.sender);
+        gatewayContract = IGateway(gatewayAddress);
+        routerBridgeContract = _routerBridgeContract;
     }
 
     modifier onlyVaultOwner(uint256 vaultID) {
         require(_exists(vaultID), "Vault does not exist");
         require(ownerOf(vaultID) == msg.sender, "Vault is not owned by you");
+        _;
+    }
+
+    modifier isSelf() {
+        require(msg.sender == address(this), "only this contract");
         _;
     }
 
@@ -109,30 +121,6 @@ contract Plutus is RouterCrossTalk, ReentrancyGuard, PawnVault, Ownable {
      */
     function setTokenPriceSource(address _source) external onlyOwner {
         tokenPriceSource = _source;
-    }
-
-    /**
-        @notice Sets the fee token address.
-        @param _addr fee token address
-     */
-    function setFeesToken(address _addr) external onlyOwner {
-        setFeeToken(_addr);
-    }
-
-    function _approveFees(address _feeToken, uint256 _value) public onlyOwner {
-        //Calling the approveFees function of the Router CrossTalk contract
-        approveFees(_feeToken, _value);
-    }
-
-    function _approveFeesOnStableCoin(address feeToken, uint256 amount)
-        external
-        onlyOwner
-    {
-        Treasury(treasury).approveFeesOnStableCoin(
-            stableCoin,
-            feeToken,
-            amount
-        );
     }
 
     /**
@@ -440,10 +428,12 @@ contract Plutus is RouterCrossTalk, ReentrancyGuard, PawnVault, Ownable {
         uint256 _vaultID,
         address _receiver,
         uint256 gasLimit,
-        uint256 gasPrice
-    ) public nonReentrant onlyVaultOwner(_vaultID) returns (bool, bytes32) {
+        uint256 gasPrice    
+    ) public nonReentrant onlyVaultOwner(_vaultID) { //returns (bool, bytes32) {
         _borrowToken(_amount, _vaultID);
-        bytes memory data = abi.encode(_amount, _receiver);
+
+
+        /*bytes memory data = abi.encode(_amount, _receiver);
         bytes4 _interface = bytes4(keccak256("xMint(uint256,address)"));
         (bool success, bytes32 hash) = routerSend(
             _chainID,
@@ -451,9 +441,17 @@ contract Plutus is RouterCrossTalk, ReentrancyGuard, PawnVault, Ownable {
             data,
             gasLimit,
             gasPrice
-        );
+        );*/
+
+
+        bytes memory data = abi.encode(_chainID, _amount, _receiver);
+        bytes memory payload = abi.encode(0, data);  // 0 -> xMint(uint256,address)
+
+        gatewayContract.requestToRouter(payload, routerBridgeContract);
+
+
         emit XBorrowToken(_vaultID, _amount);
-        return (success, hash);
+        //return (success, hash);
     }
 
     //Incoming function before that we have already burn stable
@@ -524,14 +522,15 @@ contract Plutus is RouterCrossTalk, ReentrancyGuard, PawnVault, Ownable {
         uint256 _amount,
         uint256 gasLimit,
         uint256 gasPrice
-    ) external nonReentrant returns (bool, bytes32) {
+    ) external nonReentrant { //returns (bool, bytes32) {
         require(
             ERC20(stableCoin).balanceOf(msg.sender) >= _amount,
             "Token balance too low"
         );
 
         Treasury(treasury).burnStableCoin(_amount, msg.sender, stableCoin);
-        bytes memory data = abi.encode(_amount, _vaultID);
+
+        /*bytes memory data = abi.encode(_amount, _vaultID);
         bytes4 _interface = bytes4(keccak256("xpayBackToken(uint256,uint256)"));
         (bool success, bytes32 hash) = routerSend(
             _chainID,
@@ -539,19 +538,25 @@ contract Plutus is RouterCrossTalk, ReentrancyGuard, PawnVault, Ownable {
             data,
             gasLimit,
             gasPrice
-        );
+        );*/
+
+        bytes memory data = abi.encode(_chainID, _amount, _vaultID);
+        bytes memory payload = abi.encode(1, data);  // 1 -> xpayBackToken(uint256,uint256)
+
+        gatewayContract.requestToRouter(payload, routerBridgeContract);
+
         emit XPayBackToken(_vaultID, _amount);
-        return (success, hash);
+        //return (success, hash);
     }
 
-    // Hash that is returned while calling routerSend function
-    function replayTx(
-        bytes32 hash,
-        uint256 gasLimit,
-        uint256 gasPrice
-    ) external onlyOwner {
-        routerReplay(hash, gasLimit, gasPrice);
-    }
+    // // Hash that is returned while calling routerSend function
+    // function replayTx(
+    //     bytes32 hash,
+    //     uint256 gasLimit,
+    //     uint256 gasPrice
+    // ) external onlyOwner {
+    //     routerReplay(hash, gasLimit, gasPrice);
+    // }
 
     /**
         @notice This function will  mint the stable coins for the to address. 
@@ -567,7 +572,7 @@ contract Plutus is RouterCrossTalk, ReentrancyGuard, PawnVault, Ownable {
     // }
 
     //incoming function
-    function _routerSyncHandler(bytes4 _interface, bytes memory _data)
+    /*function _routerSyncHandler(bytes4 _interface, bytes memory _data)
         internal
         virtual
         override
@@ -598,6 +603,35 @@ contract Plutus is RouterCrossTalk, ReentrancyGuard, PawnVault, Ownable {
             );
             return (success, returnData);
         }
+    }*/
+
+    function handleRequestFromRouter(string memory sender, bytes memory payload) override external {
+        // This check is to ensure that the contract is called from the Gateway only.
+        require(msg.sender == address(gatewayContract));
+
+        // bytes4 _mintInterface = bytes4(keccak256("xMint(uint256,address)"));
+        // bytes4 _xpayBackTokenInterface = bytes4(
+        //     keccak256("xpayBackToken(uint256,uint256)")
+        // );
+
+        // methodType = method to call, data = method params
+        (uint8 _methodType, bytes memory _data) = abi.decode(payload, (uint8, bytes));
+
+        // mint
+        if (_methodType == 0) {
+            (uint256 _amount, address _to) = abi.decode(_data, (uint256, address));
+
+            this.xMint(_amount, _to);
+            // (bool success, bytes memory returnData) = address(this).call(abi.encodeWithSelector(_mintInterface, _amount, _to));
+        } else if (_methodType == 1) {
+            (uint256 _amount, uint256 _vaultId) = abi.decode(_data, (uint256, uint256));
+            
+            this.xpayBackToken(_vaultId, _amount);
+            // (bool success, bytes memory returnData) = address(this).call(abi.encodeWithSelector(_xpayBackTokenInterface, _vaultId, _amount));
+        }
+        //require(keccak256(abi.encodePacked(sampleStr)) != keccak256(abi.encodePacked("")));
+        //greeting = sampleStr;
+        //emit RequestFromRouterEvent(sender, payload);
     }
 
     /**
@@ -810,7 +844,7 @@ contract Plutus is RouterCrossTalk, ReentrancyGuard, PawnVault, Ownable {
         public
         view
         virtual
-        override(ERC721, IERC165, ERC165)
+        override(ERC721)
         returns (bool)
     {
         return super.supportsInterface(interfaceId);

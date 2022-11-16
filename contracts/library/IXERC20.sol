@@ -10,13 +10,7 @@ interface IXERC20 is IERC20 {
      *
      * Emits a  event.
      */
-    function xTransfer(
-        uint8 chainId,
-        address to,
-        uint256 amount,
-        uint256 gasLimit,
-        uint256 gasPrice
-    ) external returns (bool, bytes32);
+    function xTransfer(uint8 chainId, address to, uint256 amount) external;
 
     event XTransfer(uint8 chainId, address to, uint256 amount);
     event XReceive(address to, uint256 amount);
