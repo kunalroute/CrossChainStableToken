@@ -545,11 +545,11 @@ contract Plutus is IApplication, ReentrancyGuard, PawnVault, Ownable {
 
         // mint
         if (_methodType == 0) {
-            (uint256 _amount, address _to) = abi.decode(_data, (uint256, address));
+            (, uint256 _amount, address _to) = abi.decode(_data, (uint256, uint256, address));
             xMint(_amount, _to);
             // (bool success, bytes memory returnData) = address(this).call(abi.encodeWithSelector(_mintInterface, _amount, _to));
         } else if (_methodType == 1) {
-            (uint256 _amount, uint256 _vaultId) = abi.decode(_data, (uint256, uint256));
+            (,uint256 _amount, uint256 _vaultId) = abi.decode(_data, (uint256, uint256, uint256));
             xpayBackToken(_vaultId, _amount);
             // (bool success, bytes memory returnData) = address(this).call(abi.encodeWithSelector(_xpayBackTokenInterface, _vaultId, _amount));
         }

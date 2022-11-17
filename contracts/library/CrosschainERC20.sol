@@ -452,7 +452,9 @@ contract XERC20 is IApplication, Context, IERC20Metadata, IXERC20 {
     ) external override {
         require(to != address(0), "CC20: to address can't be 0");
         require(_destContractAddress != address(0), "Plutus: dest contract address can't be 0");
-        _xTransfer(to, amount);
+        require(amount > 0, "Cannot transfer zero");
+        _burn(msg.sender, amount);
+
         bytes memory data = abi.encode(chainId, to, amount, _destContractAddress);
         bytes memory payload = abi.encode(2, data);  // 2 -> xReceive
 
@@ -460,11 +462,6 @@ contract XERC20 is IApplication, Context, IERC20Metadata, IXERC20 {
 
         //require(success == true, "unsuccessful");
         emit XTransfer(chainId, to, amount);
-    }
-
-    function _xTransfer(address to, uint256 amount) internal {
-        require(amount > 0, "Cannot transfer zero");
-        _burn(to, amount);
     }
 
     function _xReceive(address to, uint256 amount) internal {
@@ -485,7 +482,7 @@ contract XERC20 is IApplication, Context, IERC20Metadata, IXERC20 {
 
         // mint
         if (_methodType == 2) {
-            (address _to, uint256 _amount) = abi.decode(_data, (address, uint256));
+            (, address _to, uint256 _amount) = abi.decode(_data, (uint256, address, uint256));
             _xReceive(_to, _amount);
         }
     }
