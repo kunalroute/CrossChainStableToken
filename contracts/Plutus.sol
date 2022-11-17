@@ -93,7 +93,7 @@ contract Plutus is IApplication, ReentrancyGuard, PawnVault, Ownable {
         gainRatio = 1100; // /10 so 1.1
 
         _minCollateralPercent = minCollateralPercent;
-        tokenPeg = 10**8;
+        tokenPeg = 1;
         collateral = _collateral;
         stableCoin = _stableCoin;
         treasury = _treasury;
