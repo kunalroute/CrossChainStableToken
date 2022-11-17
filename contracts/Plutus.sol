@@ -58,7 +58,7 @@ contract Plutus is IApplication, ReentrancyGuard, PawnVault, Ownable {
     event XBorrowToken(uint256 vaultID, uint256 amount);
 
     event XInvestAndBorrow(
-        uint8 chainID,
+        uint256 chainID,
         uint256 vaultID,
         uint256 amount,
         address receiver
@@ -352,7 +352,7 @@ contract Plutus is IApplication, ReentrancyGuard, PawnVault, Ownable {
     function xInvestAndBorrow(
         uint256 _borrowamount,
         uint256 _depositAmount,
-        uint8 _chainId,
+        uint256 _chainId,
         address _receiver,
         address _destContractAddress
     ) external {
@@ -417,7 +417,7 @@ contract Plutus is IApplication, ReentrancyGuard, PawnVault, Ownable {
         @param _receiver the receiver address
      */
     function xBorrowToken(
-        uint8 _chainID,
+        uint256 _chainID,
         uint256 _amount,
         uint256 _vaultID,
         address _receiver,
@@ -499,7 +499,7 @@ contract Plutus is IApplication, ReentrancyGuard, PawnVault, Ownable {
         @param _amount the amount
      */
     function xPayback(
-        uint8 _chainID,
+        uint256 _chainID,
         uint256 _vaultID,
         uint256 _amount,
         address _destContractAddress
