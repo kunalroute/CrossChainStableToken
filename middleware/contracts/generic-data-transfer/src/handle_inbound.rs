@@ -51,7 +51,7 @@ pub fn handle_in_bound_request(
         if method_type == 0 {
             let decoded_inner_payload = match decode(
                 &[
-                    ParamType::Uint(8),
+                    ParamType::Uint(256),
                     ParamType::Uint(256),
                     ParamType::Uint(256),
                     ParamType::Address,
@@ -71,7 +71,7 @@ pub fn handle_in_bound_request(
         } else if method_type == 1 {
             let decoded_inner_payload = match decode(
                 &[
-                    ParamType::Uint(8),
+                    ParamType::Uint(256),
                     ParamType::Uint(256),
                     ParamType::Uint(256),
                     ParamType::Address
@@ -90,7 +90,7 @@ pub fn handle_in_bound_request(
         } else if method_type == 2 {
             let decoded_inner_payload = match decode(
                 &[
-                    ParamType::Uint(8),
+                    ParamType::Uint(256),
                     ParamType::Address,
                     ParamType::Uint(256),
                     ParamType::Address
@@ -112,9 +112,6 @@ pub fn handle_in_bound_request(
                 msg: String::from("Payload decoding error - methodType invalid"),
             })
         }
-        
-
-
     }
 
     let info_str: String = format!(
