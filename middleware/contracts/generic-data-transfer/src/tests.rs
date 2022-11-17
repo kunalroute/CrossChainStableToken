@@ -1,6 +1,7 @@
 use crate::contract::instantiate;
-use crate::contract::{execute, fetch_white_listed_contract, is_white_listed_contract, sudo};
-use crate::msg::{ExecuteMsg, InstantiateMsg};
+use crate::contract::{execute, sudo};
+use crate::msg::{ApplicationContract, ExecuteMsg, InstantiateMsg};
+use crate::query::{fetch_white_listed_contract, is_white_listed_contract};
 use cosmwasm_std::{
     testing::{mock_dependencies, mock_env, mock_info},
     DepsMut,
@@ -14,6 +15,7 @@ use router_wasm_bindings::{RouterMsg, SudoMsg};
 const INIT_ADDRESS: &str = "init_address";
 const TO: &str = "ab8483f64d9c6d1ecf9b849ae677dd3315835cb2";
 const SENDER: &str = "00967d76a67fde3a1987b971a91cf4fc6db14a3d";
+const USDC: &str = "EeDb3AB68d567A6CD6D19Fa819fe77b9f8Ed1538";
 const CHAIN_ID: &str = "121";
 const CHAIN_TYPE: u32 = 0;
 
@@ -23,7 +25,7 @@ fn do_instantiate(mut deps: DepsMut, env: Env, info: MessageInfo) {
     assert_eq!(0, res.messages.len());
 }
 
-fn test_update_bridge_contract(mut deps: DepsMut, env: Env, info: MessageInfo) {
+fn add_single_white_list_contract(mut deps: DepsMut, env: Env, info: MessageInfo) {
     let to_address: Vec<u8> = hex::decode(TO).unwrap();
     let msg: ExecuteMsg = ExecuteMsg::WhiteListApplicationContract {
         chain_id: String::from(CHAIN_ID),
@@ -32,12 +34,23 @@ fn test_update_bridge_contract(mut deps: DepsMut, env: Env, info: MessageInfo) {
     };
     let result = execute(deps.branch(), env.clone(), info.clone(), msg);
     assert_eq!(result.is_ok(), true);
+}
 
+fn update_multi_bridge_contract(mut deps: DepsMut, env: Env, info: MessageInfo) {
     let sender_address: Vec<u8> = hex::decode(SENDER).unwrap();
-    let msg: ExecuteMsg = ExecuteMsg::WhiteListApplicationContract {
+    let usdc_address: Vec<u8> = hex::decode(USDC).unwrap();
+    let contract_1: ApplicationContract = ApplicationContract {
         chain_id: String::from(CHAIN_ID),
         chain_type: CHAIN_TYPE,
         contract_address: sender_address,
+    };
+    let contract_2: ApplicationContract = ApplicationContract {
+        chain_id: String::from(CHAIN_ID),
+        chain_type: CHAIN_TYPE,
+        contract_address: usdc_address,
+    };
+    let msg: ExecuteMsg = ExecuteMsg::WhiteListApplicationContracts {
+        contracts: vec![contract_1, contract_2],
     };
     let result = execute(deps.branch(), env, info, msg);
     assert_eq!(result.is_ok(), true);
@@ -57,7 +70,8 @@ fn test_sudo_function() {
     let env = mock_env();
     let info = mock_info(INIT_ADDRESS, &[]);
     do_instantiate(deps.as_mut(), env.clone(), info.clone());
-    test_update_bridge_contract(deps.as_mut(), env.clone(), info.clone());
+    update_multi_bridge_contract(deps.as_mut(), env.clone(), info.clone());
+    add_single_white_list_contract(deps.as_mut(), env.clone(), info.clone());
 
     let chain_id_token: Token = Token::String(String::from(CHAIN_ID));
 
@@ -72,14 +86,13 @@ fn test_sudo_function() {
             .unwrap();
     let instruction: Token = Token::Bytes(instruction_bytes);
 
-    let encoded: Vec<u8> = encode(&[destination_address, chain_id_token, chain_type, instruction]);
-    let test_string: String = hex::encode(encoded);
-    let encoded_string: String = base64::encode(test_string.clone());
+    let payload: Vec<u8> = encode(&[destination_address, chain_id_token, chain_type, instruction]);
+    let encoded_payload: String = base64::encode(payload);
     let msg: SudoMsg = SudoMsg::HandleInboundReq {
         sender: String::from("0x00967d76a67fde3a1987b971a91cf4fc6db14a3d"),
         chain_type: CHAIN_TYPE,
         source_chain_id: String::from(CHAIN_ID),
-        payload: Binary::from_base64(&encoded_string).unwrap(),
+        payload: Binary::from_base64(&encoded_payload).unwrap(),
     };
 
     let result = sudo(deps.as_mut(), env, msg);
@@ -120,7 +133,7 @@ fn test_execute_update_bridge_address() {
     let info = mock_info(INIT_ADDRESS, &[]);
 
     do_instantiate(deps.as_mut(), env.clone(), info.clone());
-    test_update_bridge_contract(deps.as_mut(), env, info);
+    add_single_white_list_contract(deps.as_mut(), env, info);
 
     let to_address: Vec<u8> = hex::decode(TO).unwrap();
 
@@ -141,7 +154,8 @@ fn test_list_white_listed_contracts() {
     let info = mock_info(INIT_ADDRESS, &[]);
 
     do_instantiate(deps.as_mut(), env.clone(), info.clone());
-    test_update_bridge_contract(deps.as_mut(), env, info);
+    add_single_white_list_contract(deps.as_mut(), env.clone(), info.clone());
+    update_multi_bridge_contract(deps.as_mut(), env, info);
 
     let data = fetch_white_listed_contract(deps.as_ref()).unwrap();
 
@@ -153,9 +167,9 @@ fn test_list_white_listed_contracts() {
     assert_eq!(id_2, CHAIN_ID);
     assert_eq!(type_2, CHAIN_TYPE);
 
-    let to_address: Vec<u8> = hex::decode(TO).unwrap();
+    let usdc_address: Vec<u8> = hex::decode(USDC).unwrap();
     let (contract_one, id_one, type_one) = data[1].clone();
-    assert_eq!(to_address, contract_one);
+    assert_eq!(usdc_address, contract_one);
     assert_eq!(id_one, CHAIN_ID);
     assert_eq!(type_one, CHAIN_TYPE);
 }

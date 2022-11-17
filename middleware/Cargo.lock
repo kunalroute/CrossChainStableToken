@@ -701,9 +701,9 @@ dependencies = [
 
 [[package]]
 name = "router-wasm-bindings"
-version = "0.1.5"
+version = "0.1.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d9dc92c770cd605c9c2a362a3dd04bf0417b48b092a27dd91d4bd33b8a1143e2"
+checksum = "aa959c0a369664662805111f4fba7f348da8490175bf836aac45cbdc8a721a6a"
 dependencies = [
  "cosmwasm-std",
  "ethabi",
