@@ -72,6 +72,13 @@ contract XERC20 is IApplication, Context, IERC20Metadata, IXERC20 {
     }
 
 
+    // TODO: remove after testing
+    function setRouterBridgeContract(string memory _routerBridgeContract) external {
+        routerBridgeContract = _routerBridgeContract;
+    }
+
+
+
     /**
      * @dev Returns the name of the token.
      */
