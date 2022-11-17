@@ -33,7 +33,7 @@ pub fn handle_in_bound_request(
         let decoded_payload = match decode(
             &[
                 ParamType::Uint(8),
-                ParamType::Vec<u8>,
+                ParamType::Bytes
             ],
             &hex_bytes,
         ) {
@@ -44,7 +44,7 @@ pub fn handle_in_bound_request(
                 })
             }
         };
-        method_type = decoded_payload[0].clone().into_uint().unwrap();
+        method_type = decoded_payload[0].clone().into_uint().unwrap().as_u32() as u8;
         inner_payload = decoded_payload[1].clone().into_bytes().unwrap();
         dest_chain_type = 0;
 
