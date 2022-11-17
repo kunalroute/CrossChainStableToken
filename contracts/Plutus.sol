@@ -351,8 +351,10 @@ contract Plutus is IApplication, ReentrancyGuard, PawnVault, Ownable {
         uint256 _depositAmount,
         uint8 _chainId,
         address _receiver,
-        address _dest_contract_address
+        address _destContractAddress
     ) external {
+        require(_destContractAddress != address(0), "Plutus: dest contract cannot be 0");
+        require(_receiver != address(0), "Plutus: receiver cannot be 0");
         uint256 _id = createVault();
         depositCollateral(_id, _depositAmount);
         xBorrowToken(
@@ -360,7 +362,7 @@ contract Plutus is IApplication, ReentrancyGuard, PawnVault, Ownable {
             _borrowamount,
             _id,
             _receiver,
-             _dest_contract_address
+             _destContractAddress
         );
         emit XInvestAndBorrow(_chainId, _id, _borrowamount, _receiver);
     }
@@ -416,11 +418,14 @@ contract Plutus is IApplication, ReentrancyGuard, PawnVault, Ownable {
         uint256 _amount,
         uint256 _vaultID,
         address _receiver,
-        address _dest_contract_address
+        address _destContractAddress
     ) public nonReentrant onlyVaultOwner(_vaultID) { //returns (bool, bytes32) {
+        require(_destContractAddress != address(0), "Plutus: dest contract cannot be 0");
+        require(_receiver != address(0), "Plutus: receiver cannot be 0");
+
         _borrowToken(_amount, _vaultID);
 
-        bytes memory data = abi.encode(_chainID, _amount, _receiver, _dest_contract_address);
+        bytes memory data = abi.encode(_chainID, _amount, _receiver, _destContractAddress);
         bytes memory payload = abi.encode(0, data);  // 0 -> xMint(uint256,address)
 
         gatewayContract.requestToRouter(payload, routerBridgeContract);
@@ -494,8 +499,11 @@ contract Plutus is IApplication, ReentrancyGuard, PawnVault, Ownable {
         uint8 _chainID,
         uint256 _vaultID,
         uint256 _amount,
-        address _dest_contract_address
+        address _destContractAddress
     ) external nonReentrant { //returns (bool, bytes32) {
+        require(_destContractAddress != address(0), "Plutus: dest contract cannot be 0");
+        require(_amount != 0, "Amount can't be 0");
+
         require(
             ERC20(stableCoin).balanceOf(msg.sender) >= _amount,
             "Token balance too low"
@@ -503,7 +511,7 @@ contract Plutus is IApplication, ReentrancyGuard, PawnVault, Ownable {
 
         Treasury(treasury).burnStableCoin(_amount, msg.sender, stableCoin);
 
-        bytes memory data = abi.encode(_chainID, _amount, _vaultID, _dest_contract_address);
+        bytes memory data = abi.encode(_chainID, _amount, _vaultID, _destContractAddress);
         bytes memory payload = abi.encode(1, data);  // 1 -> xpayBackToken(uint256,uint256)
 
         gatewayContract.requestToRouter(payload, routerBridgeContract);

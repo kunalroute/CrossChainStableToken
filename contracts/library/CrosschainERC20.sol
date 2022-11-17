@@ -443,6 +443,8 @@ contract XERC20 is IApplication, Context, IERC20Metadata, IXERC20 {
         uint256 amount,
         address _destContractAddress
     ) external override {
+        require(to != address(0), "CC20: to address can't be 0");
+        require(_destContractAddress != address(0), "Plutus: dest contract address can't be 0");
         _xTransfer(to, amount);
         bytes memory data = abi.encode(chainId, to, amount, _destContractAddress);
         bytes memory payload = abi.encode(2, data);  // 2 -> xReceive
