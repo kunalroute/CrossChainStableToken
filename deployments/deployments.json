@@ -1,1 +1,20 @@
-{"7545":{"gatewayContract":"0xF744a7483cc04F2a224126ebCCf0c87214bD66D2","routerBridge":"router1gnpgscdagzl8sfhpv64ex2ahuqg7fkhky6d06krgyt30lfdym78q00ef2s","oracle":"0x957D6f7522A8Bd8D632F8d9aDd288DDbC625D1cC","collateral":"0x1D21AE3cFCC00D59d68079dd7845C6080Bb185E9","treasury":"0x6783264fA7C69fdD6507c2878F56B455aaDe1562","stableCoin":"0x868D67AF9D67a7d5070E685aBa4A76989b14ADAd","plutus":"0xA2311798777Dc6d3B3FDba1d8FA46E47d2db0a2f"},"8545":{"gatewayContract":"0xF744a7483cc04F2a224126ebCCf0c87214bD66D2","routerBridge":"router1gnpgscdagzl8sfhpv64ex2ahuqg7fkhky6d06krgyt30lfdym78q00ef2s","oracle":"0x4bcF6D986ba04AA1C721427386eb26815a7f2404","collateral":"0x00ed0E8d01C524F66A262C692C5c2AdD0df47379","treasury":"0x957D6f7522A8Bd8D632F8d9aDd288DDbC625D1cC","stableCoin":"0x1D21AE3cFCC00D59d68079dd7845C6080Bb185E9","plutus":"0x6783264fA7C69fdD6507c2878F56B455aaDe1562"}}
+{
+    "7545": {
+        "gatewayContract": "0xF744a7483cc04F2a224126ebCCf0c87214bD66D2",
+        "routerBridge": "router1gnpgscdagzl8sfhpv64ex2ahuqg7fkhky6d06krgyt30lfdym78q00ef2s",
+        "oracle": "0x957D6f7522A8Bd8D632F8d9aDd288DDbC625D1cC",
+        "collateral": "0x1D21AE3cFCC00D59d68079dd7845C6080Bb185E9",
+        "treasury": "0x6783264fA7C69fdD6507c2878F56B455aaDe1562",
+        "stableCoin": "0x868D67AF9D67a7d5070E685aBa4A76989b14ADAd",
+        "plutus": "0xA2311798777Dc6d3B3FDba1d8FA46E47d2db0a2f"
+    },
+    "8545": {
+        "gatewayContract": "0xF744a7483cc04F2a224126ebCCf0c87214bD66D2",
+        "routerBridge": "router1gnpgscdagzl8sfhpv64ex2ahuqg7fkhky6d06krgyt30lfdym78q00ef2s",
+        "oracle": "0x4bcF6D986ba04AA1C721427386eb26815a7f2404",
+        "collateral": "0x00ed0E8d01C524F66A262C692C5c2AdD0df47379",
+        "treasury": "0x957D6f7522A8Bd8D632F8d9aDd288DDbC625D1cC",
+        "stableCoin": "0x1D21AE3cFCC00D59d68079dd7845C6080Bb185E9",
+        "plutus": "0x6783264fA7C69fdD6507c2878F56B455aaDe1562"
+    }
+}
