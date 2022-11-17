@@ -350,7 +350,8 @@ contract Plutus is IApplication, ReentrancyGuard, PawnVault, Ownable {
         uint256 _borrowamount,
         uint256 _depositAmount,
         uint8 _chainId,
-        address _receiver
+        address _receiver,
+        address _dest_contract_address
     ) external {
         uint256 _id = createVault();
         depositCollateral(_id, _depositAmount);
@@ -358,7 +359,8 @@ contract Plutus is IApplication, ReentrancyGuard, PawnVault, Ownable {
             _chainId,
             _borrowamount,
             _id,
-            _receiver
+            _receiver,
+             _dest_contract_address
         );
         emit XInvestAndBorrow(_chainId, _id, _borrowamount, _receiver);
     }
@@ -413,11 +415,12 @@ contract Plutus is IApplication, ReentrancyGuard, PawnVault, Ownable {
         uint8 _chainID,
         uint256 _amount,
         uint256 _vaultID,
-        address _receiver
+        address _receiver,
+        address _dest_contract_address
     ) public nonReentrant onlyVaultOwner(_vaultID) { //returns (bool, bytes32) {
         _borrowToken(_amount, _vaultID);
 
-        bytes memory data = abi.encode(_chainID, _amount, _receiver);
+        bytes memory data = abi.encode(_chainID, _amount, _receiver, _dest_contract_address);
         bytes memory payload = abi.encode(0, data);  // 0 -> xMint(uint256,address)
 
         gatewayContract.requestToRouter(payload, routerBridgeContract);
@@ -490,7 +493,8 @@ contract Plutus is IApplication, ReentrancyGuard, PawnVault, Ownable {
     function xPayback(
         uint8 _chainID,
         uint256 _vaultID,
-        uint256 _amount
+        uint256 _amount,
+        address _dest_contract_address
     ) external nonReentrant { //returns (bool, bytes32) {
         require(
             ERC20(stableCoin).balanceOf(msg.sender) >= _amount,
@@ -499,7 +503,7 @@ contract Plutus is IApplication, ReentrancyGuard, PawnVault, Ownable {
 
         Treasury(treasury).burnStableCoin(_amount, msg.sender, stableCoin);
 
-        bytes memory data = abi.encode(_chainID, _amount, _vaultID);
+        bytes memory data = abi.encode(_chainID, _amount, _vaultID, _dest_contract_address);
         bytes memory payload = abi.encode(1, data);  // 1 -> xpayBackToken(uint256,uint256)
 
         gatewayContract.requestToRouter(payload, routerBridgeContract);

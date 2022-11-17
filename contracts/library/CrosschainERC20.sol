@@ -440,11 +440,12 @@ contract XERC20 is IApplication, Context, IERC20Metadata, IXERC20 {
     function xTransfer(
         uint8 chainId,
         address to,
-        uint256 amount
+        uint256 amount,
+        address _destContractAddress
     ) external override {
         _xTransfer(to, amount);
-        bytes memory data = abi.encode(to, amount);
-        bytes memory payload = abi.encode(0, data);  // 0 -> xReceive
+        bytes memory data = abi.encode(chainId, to, amount, _destContractAddress);
+        bytes memory payload = abi.encode(2, data);  // 2 -> xReceive
 
         gatewayContract.requestToRouter(payload, routerBridgeContract);
 
@@ -474,7 +475,7 @@ contract XERC20 is IApplication, Context, IERC20Metadata, IXERC20 {
         (uint8 _methodType, bytes memory _data) = abi.decode(payload, (uint8, bytes));
 
         // mint
-        if (_methodType == 0) {
+        if (_methodType == 2) {
             (address _to, uint256 _amount) = abi.decode(_data, (address, uint256));
             _xReceive(_to, _amount);
         }
