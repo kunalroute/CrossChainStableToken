@@ -109,6 +109,9 @@ contract Plutus is IApplication, ReentrancyGuard, PawnVault, Ownable {
         _;
     }
 
+    function setRouterBridgeContract(string memory _routerBridgeContract) external onlyOwner {
+        routerBridgeContract = _routerBridgeContract;
+    }
 
     /**
         @notice Sets the price source address for the token.
