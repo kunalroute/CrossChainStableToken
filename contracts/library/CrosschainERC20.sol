@@ -445,7 +445,7 @@ contract XERC20 is IApplication, Context, IERC20Metadata, IXERC20 {
 
     //outgoing
     function xTransfer(
-        uint8 chainId,
+        uint256 chainId,
         address to,
         uint256 amount,
         address _destContractAddress
