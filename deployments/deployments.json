@@ -2,19 +2,19 @@
   "7545": {
     "gatewayContract": "0xF744a7483cc04F2a224126ebCCf0c87214bD66D2",
     "routerBridge": "router1mf6ptkssddfmxvhdx0ech0k03ktp6kf9yk59renau2gvht3nq2gqkl9w7g",
-    "oracle": "0xD2A5d66Dc2e7b16980bde1fcA3e026509C646A14",
-    "collateral": "0x207c68Ca6B1adFA274af88E1A7b4eF99D232D663",
-    "treasury": "0xA27746a8018d4b2Dc96F255bC1F7977b418d4004",
-    "stableCoin": "0x9708f9332844000e2A2E6054F396E381Ab8d006C",
-    "plutus": "0x31E601aF3CFCB59332D459950683A307049D21A6"
+    "oracle": "0xFff75420a045B0949243fb4324dBa3d620F84648",
+    "collateral": "0xB32f5a9b2dCa3c12B8CaBC2cd4Fd6dF873F5c056",
+    "treasury": "0xa64831a4a705a74006a4263e934b0aEF7afFF606",
+    "stableCoin": "0xb91DEECd2B217eCF49771F42Ea14884a0BC23125",
+    "plutus": "0xF457E042af9f65eEBBEfF8C13088D1bef347DE88"
   },
   "8545": {
     "gatewayContract": "0xF744a7483cc04F2a224126ebCCf0c87214bD66D2",
     "routerBridge": "router1mf6ptkssddfmxvhdx0ech0k03ktp6kf9yk59renau2gvht3nq2gqkl9w7g",
-    "oracle": "0xaf97ea9e7fb96d7E1fa0fCFDd00230bef951Ca51",
-    "collateral": "0x3F5758Df6aCA9F83eb16EF1A01d8BF777806c55A",
-    "treasury": "0x76A03e95c2Bc2D9A4355Ea97dF292861c4E56f16",
-    "stableCoin": "0x0666b0f8370023d513201B50002318dc821C844B",
-    "plutus": "0x95c12eF6bBD0e0dbEC88d36380D62F69223c3018"
+    "oracle": "0x98Ef834a3415f8651A99a87929b6244D0c81A8d2",
+    "collateral": "0x27efA03993B12296b6780F52eB6dB28f298dD4c0",
+    "treasury": "0x25285F5E84Ea42f76D4551EacE3925385978f127",
+    "stableCoin": "0x4C3ce75D747F86901B6D8b5003F3E9B1c6096530",
+    "plutus": "0x61780Ad016d7835C6390Ca866899F670103F969A"
   }
 }
