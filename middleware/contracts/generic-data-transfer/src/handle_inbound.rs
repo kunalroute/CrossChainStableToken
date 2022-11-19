@@ -66,7 +66,7 @@ pub fn handle_in_bound_request(
                 }
             };
             dest_chain_id = decoded_inner_payload[0].clone().into_uint().unwrap().to_string();
-            dest_contract_address = decoded_inner_payload[4].clone().into_address().unwrap().0;
+            dest_contract_address = decoded_inner_payload[3].clone().into_address().unwrap().0;
         } else if method_type == 1 {
             let decoded_inner_payload = match decode(
                 &[
