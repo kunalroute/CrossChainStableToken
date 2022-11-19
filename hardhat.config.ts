@@ -97,6 +97,11 @@ const config: HardhatUserConfig = {
       url: "https://rc-testnet2.routerprotocol.com/",
       accounts: [mnemonic],
     },
+    ganache3: {
+      chainId: 6545,
+      url: "https://rc-testnet3.routerprotocol.com/",
+      accounts: [mnemonic],
+    },
     goerli: getChainConfig("goerli"),
     kovan: getChainConfig("kovan"),
     rinkeby: getChainConfig("rinkeby"),
