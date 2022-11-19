@@ -1,7 +1,7 @@
 {
   "7545": {
     "gatewayContract": "0xF744a7483cc04F2a224126ebCCf0c87214bD66D2",
-    "routerBridge": "router1mf6ptkssddfmxvhdx0ech0k03ktp6kf9yk59renau2gvht3nq2gqkl9w7g",
+    "routerBridge": "router1plr28ztj64a47a32lw7tdae8vluzm2lm7nqk364r4ws50rgwyzgsreeu2d",
     "oracle": "0xCf44A5BCD173039c37a9880cFE40Ba5691859e96",
     "collateral": "0xa9C8f72C22c6353aC3b530D44d567cc56046040E",
     "treasury": "0x9d7362F1C4AAFD19585Af5764003E99d20F30404",
@@ -10,7 +10,7 @@
   },
   "8545": {
     "gatewayContract": "0xF744a7483cc04F2a224126ebCCf0c87214bD66D2",
-    "routerBridge": "router1mf6ptkssddfmxvhdx0ech0k03ktp6kf9yk59renau2gvht3nq2gqkl9w7g",
+    "routerBridge": "router1plr28ztj64a47a32lw7tdae8vluzm2lm7nqk364r4ws50rgwyzgsreeu2d",
     "oracle": "0x25285F5E84Ea42f76D4551EacE3925385978f127",
     "collateral": "0x4C3ce75D747F86901B6D8b5003F3E9B1c6096530",
     "treasury": "0x61780Ad016d7835C6390Ca866899F670103F969A",
