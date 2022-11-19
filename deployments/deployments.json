@@ -1,20 +1,20 @@
 {
   "7545": {
     "gatewayContract": "0xF744a7483cc04F2a224126ebCCf0c87214bD66D2",
-    "routerBridge": "router1mf6ptkssddfmxvhdx0ech0k03ktp6kf9yk59renau2gvht3nq2gqkl9w7g",
-    "oracle": "0xCf44A5BCD173039c37a9880cFE40Ba5691859e96",
-    "collateral": "0xa9C8f72C22c6353aC3b530D44d567cc56046040E",
-    "treasury": "0x9d7362F1C4AAFD19585Af5764003E99d20F30404",
-    "stableCoin": "0xba9D6B4d99cD11E6830556Dbc8505893346c049A",
-    "plutus": "0x62DAab05dD0dA575D0639b2197BDe53a82BB5214"
+    "routerBridge": "router1plr28ztj64a47a32lw7tdae8vluzm2lm7nqk364r4ws50rgwyzgsreeu2d",
+    "oracle": "0xA45C4bf9Dd24900d0691Fa8083Ee4732aE2Dcb64",
+    "collateral": "0x1CE6482192621df17285B8aC9Fc3eD2fce69cFDE",
+    "treasury": "0x3d6A0a6339Ce498E6176FC2c79373F01C3576db4",
+    "stableCoin": "0x12fBdcd79c437aA7F68d781529bBD3C0b8d8E9AD",
+    "plutus": "0x7d22fF677A8c852c3318a2e12AD292b6a3BD7524"
   },
   "8545": {
     "gatewayContract": "0xF744a7483cc04F2a224126ebCCf0c87214bD66D2",
-    "routerBridge": "router1mf6ptkssddfmxvhdx0ech0k03ktp6kf9yk59renau2gvht3nq2gqkl9w7g",
-    "oracle": "0x25285F5E84Ea42f76D4551EacE3925385978f127",
-    "collateral": "0x4C3ce75D747F86901B6D8b5003F3E9B1c6096530",
-    "treasury": "0x61780Ad016d7835C6390Ca866899F670103F969A",
-    "stableCoin": "0x30A255DdB3E615A52AC9ebf6cE0449e343094646",
-    "plutus": "0xFff75420a045B0949243fb4324dBa3d620F84648"
+    "routerBridge": "router1plr28ztj64a47a32lw7tdae8vluzm2lm7nqk364r4ws50rgwyzgsreeu2d",
+    "oracle": "0xF457E042af9f65eEBBEfF8C13088D1bef347DE88",
+    "collateral": "0x92f52496C8476259B134dB9BFeA78D8A2E1eEEAF",
+    "treasury": "0x5870968041c89c2Fd0Eb1c23CB4f79b4F86E166A",
+    "stableCoin": "0x27e42dDA86a6228bF18643e6d71F1B1e8F600344",
+    "plutus": "0xCf44A5BCD173039c37a9880cFE40Ba5691859e96"
   }
 }
