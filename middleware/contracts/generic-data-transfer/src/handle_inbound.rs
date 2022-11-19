@@ -53,7 +53,6 @@ pub fn handle_in_bound_request(
                 &[
                     ParamType::Uint(256),
                     ParamType::Uint(256),
-                    ParamType::Uint(256),
                     ParamType::Address,
                     ParamType::Address,
                 ],
